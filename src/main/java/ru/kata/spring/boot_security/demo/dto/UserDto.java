@@ -1,4 +1,4 @@
-package ru.kata.spring.boot_security.demo.model;
+package ru.kata.spring.boot_security.demo.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -8,12 +8,12 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
-import ru.kata.spring.boot_security.demo.model.UserDto;
+import ru.kata.spring.boot_security.demo.dto.UserDto;
 import ru.kata.spring.boot_security.demo.repository.UserRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,6 +29,29 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    private UserDto convertToDto(User user) {
+        return new UserDto(user.getId(), user.getUsername(), user.getEmail(),
+                user.getRoles().stream().map(role -> role.getName()).collect(Collectors.toList()));
+
+    }
+
+    private User convertToEntity(UserDto userDto) {
+        User user = new User();
+        user.setId(userDto.getId());
+        user.setName(userDto.getName());
+        user.setEmail(userDto.getEmail());
+        return user;
+    }
+
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<UserDto> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
 
     @Transactional(readOnly = true)
     @Override
@@ -37,43 +60,29 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         if (user == null) {
             return null;
         }
-
-        List<String> roleNames = user.getRoles().stream()
-                .map(Role::getName)
-                .collect(Collectors.toList());
-
-        return new UserDto(user.getId(), user.getName(), user.getEmail(), roleNames);
+        return convertToDto(user);
     }
 
-
-    @Transactional(readOnly = true)
-    @Override
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public User getUserById(long id) {
-        return userRepository.findById(id);
-    }
 
     @Transactional
     @Override
-    public void createUser(User user) {
-        String encodedPassword = passwordEncoder.encode(user.getPassword());
-        user.setPassword(encodedPassword);
+    public void createUser(UserDto userDto) {
+        User user = convertToEntity(userDto);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
     }
 
     @Transactional
     @Override
-    public void updateUser(User user) {
+    public void updateUser(UserDto userDto) {
+        User user = convertToEntity(userDto);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
     }
 
     @Transactional
     @Override
+
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }
