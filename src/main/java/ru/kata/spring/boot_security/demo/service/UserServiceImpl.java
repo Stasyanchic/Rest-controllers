@@ -1,5 +1,6 @@
 package ru.kata.spring.boot_security.demo.service;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -7,9 +8,13 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
+import ru.kata.spring.boot_security.demo.model.UserDto;
 import ru.kata.spring.boot_security.demo.repository.UserRepository;
+
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService, UserDetailsService {
@@ -23,6 +28,23 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
+
+
+    @Transactional(readOnly = true)
+    @Override
+    public UserDto getUserDtoById(Long id) {
+        User user = userRepository.findById(id).orElse(null);
+        if (user == null) {
+            return null;
+        }
+
+        List<String> roleNames = user.getRoles().stream()
+                .map(Role::getName)
+                .collect(Collectors.toList());
+
+        return new UserDto(user.getId(), user.getName(), user.getEmail(), roleNames);
+    }
+
 
     @Transactional(readOnly = true)
     @Override
@@ -56,6 +78,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         userRepository.deleteById(id);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public User findByName(String name) {
         return userRepository.findByName(name);
@@ -69,6 +92,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException("User not found");
         }
+        Hibernate.initialize(user.getRoles());
         return user;
     }
 }
