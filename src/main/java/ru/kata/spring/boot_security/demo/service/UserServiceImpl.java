@@ -12,6 +12,7 @@ import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.dto.UserDto;
 import ru.kata.spring.boot_security.demo.repository.UserRepository;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -56,10 +57,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Transactional(readOnly = true)
     @Override
     public UserDto getUserDtoById(Long id) {
-        User user = userRepository.findById(id).orElse(null);
-        if (user == null) {
-            return null;
-        }
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User with id " + id + " not found"));
         return convertToDto(user);
     }
 
@@ -75,14 +74,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Transactional
     @Override
     public void updateUser(UserDto userDto) {
-        User user = convertToEntity(userDto);
+        User user = userRepository.findById(userDto.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid user Id:" + userDto.getId()));
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setName(userDto.getName());
+        user.setEmail(userDto.getEmail());
         userRepository.save(user);
     }
 
     @Transactional
     @Override
-
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }

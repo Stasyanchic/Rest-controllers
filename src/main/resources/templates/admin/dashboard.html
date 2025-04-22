@@ -6,6 +6,9 @@
 <body>
 <h1>Welcome to Admin PAGE Stas!</h1>
 
+<div sec:authorize="hasRole('ADMIN')">
+    <a th:href="@{/admin/list}">Show User List</a>
+</div>
 
 </body>
 </html>

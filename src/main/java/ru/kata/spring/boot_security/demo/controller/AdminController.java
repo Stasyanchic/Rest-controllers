@@ -29,7 +29,7 @@ public class AdminController {
 
 
     @GetMapping
-    public String getUserHomePage(@AuthenticationPrincipal User user, Model model) {
+    public String getHomePage(@AuthenticationPrincipal User user, Model model) {
         model.addAttribute("user", userService.findByName(user.getUsername()));
         return "admin/dashboard";
     }
@@ -43,8 +43,8 @@ public class AdminController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/{id}")
-    public String showUser(@PathVariable("id") long id, Model model) {
+    @GetMapping("/show/{id}")
+    public String showUserDetails(@PathVariable("id") long id, Model model) {
         UserDto userDto = userService.getUserDtoById(id);
         if (userDto == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with id " + id + " not found");
@@ -54,6 +54,7 @@ public class AdminController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
+
     @GetMapping("/new")
     public String showNewUserForm(Model model) {
         model.addAttribute("userDto", new UserDto());
@@ -64,19 +65,19 @@ public class AdminController {
     @PostMapping("/new")
     public String createUser(@ModelAttribute("userDto") UserDto userDto) {
         userService.createUser(userDto);
-        return "redirect:/users/list";
+        return "redirect:/admin/list";
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/{id}/update")
+    @PostMapping("/edit/{id}")
     public String updateUser(@PathVariable("id") long id, @ModelAttribute("userDto") UserDto userDto) {
         userDto.setId(id);
         userService.updateUser(userDto);
-        return "redirect:/users/list";
+        return "redirect:/admin/list";
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/{id}/edit")
+    @GetMapping("/edit/{id}")
     public String showEditUserForm(@PathVariable("id") long id, Model model) {
         UserDto userDto = userService.getUserDtoById(id);
         if (userDto == null) {
@@ -87,9 +88,9 @@ public class AdminController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/{id}/delete")
+    @PostMapping("/delete/{id}")
     public String deleteUser(@PathVariable("id") long id) {
         userService.deleteUser(id);
-        return "redirect:/users/list";
+        return "redirect:/admin/list";
     }
 }
