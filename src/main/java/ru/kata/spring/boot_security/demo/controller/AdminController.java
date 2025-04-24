@@ -10,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ru.kata.spring.boot_security.demo.dto.UserDto;
+import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.service.UserService;
 
@@ -54,42 +55,44 @@ public class AdminController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-
     @GetMapping("/new")
-    public String showNewUserForm(Model model) {
+    public String showCreationOfUserForm(Model model) {
         model.addAttribute("userDto", new UserDto());
         return "users/new";
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/new")
-    public String createUser(@ModelAttribute("userDto") UserDto userDto) {
+    public String createUserButton(@ModelAttribute("userDto") UserDto userDto) {
         userService.createUser(userDto);
         return "redirect:/admin/list";
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/edit/{id}")
-    public String updateUser(@PathVariable("id") long id, @ModelAttribute("userDto") UserDto userDto) {
+    public String updateUserButton(@PathVariable("id") long id, @ModelAttribute("userDto") UserDto userDto) {
         userDto.setId(id);
         userService.updateUser(userDto);
         return "redirect:/admin/list";
+
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/edit/{id}")
     public String showEditUserForm(@PathVariable("id") long id, Model model) {
         UserDto userDto = userService.getUserDtoById(id);
+        List<Role> roles = userService.getAllRoles();
         if (userDto == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with id " + id + " not found");
         }
         model.addAttribute("userDto", userDto);
+        model.addAttribute("rolesList", roles);
         return "users/edit";
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/delete/{id}")
-    public String deleteUser(@PathVariable("id") long id) {
+    public String deleteUserButton(@PathVariable("id") long id) {
         userService.deleteUser(id);
         return "redirect:/admin/list";
     }

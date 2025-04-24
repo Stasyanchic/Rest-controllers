@@ -8,39 +8,48 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.dto.UserDto;
+import ru.kata.spring.boot_security.demo.repository.RoleRepository;
 import ru.kata.spring.boot_security.demo.repository.UserRepository;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService, UserDetailsService {
 
 
+    private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
+    public UserServiceImpl(RoleRepository roleRepository, UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
+        this.roleRepository = roleRepository;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
     private UserDto convertToDto(User user) {
-        return new UserDto(user.getId(), user.getUsername(), user.getEmail(),
+        return new UserDto(user.getId(), user.getUsername(), user.getEmail(), user.getPassword(),
                 user.getRoles().stream().map(role -> role.getName()).collect(Collectors.toList()));
 
     }
 
     private User convertToEntity(UserDto userDto) {
         User user = new User();
-        user.setId(userDto.getId());
+        if (userDto.getId() != null) {
+            user.setId(userDto.getId());
+        }
         user.setName(userDto.getName());
         user.setEmail(userDto.getEmail());
+        user.setPassword(userDto.getPassword());
         return user;
     }
 
@@ -66,9 +75,20 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Transactional
     @Override
     public void createUser(UserDto userDto) {
+
+        if (userDto.getPassword() == null || userDto.getPassword().isEmpty()) {
+            throw new IllegalArgumentException("Password cannot be empty");
+        }
+
+        if (userRepository.findByEmail(userDto.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("Email already exists");
+        }
+
+
         User user = convertToEntity(userDto);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
+        userDto.setId(user.getId());
     }
 
     @Transactional
@@ -79,6 +99,15 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setName(userDto.getName());
         user.setEmail(userDto.getEmail());
+        user.getRoles().clear();
+        Set<Role> roles = new HashSet<>();
+        if (userDto.getRoles() != null) {
+            roles = userDto.getRoles().stream()
+                    .map(roleName -> roleRepository.findOptionalByName(roleName)
+                            .orElseThrow(() -> new IllegalArgumentException("Role not found: " + roleName)))
+                    .collect(Collectors.toSet());
+        }
+        user.setRoles(roles);
         userRepository.save(user);
     }
 
@@ -94,6 +123,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return userRepository.findByName(name);
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public List<Role> getAllRoles() {
+        return roleRepository.findAll();
+    }
 
     @Transactional(readOnly = true)
     @Override

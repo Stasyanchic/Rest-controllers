@@ -24,9 +24,6 @@ public class UserController {
     public String getUserHomePage(Authentication authentication, Model model) {
         String userName = authentication.getName();
         User userToShow = userService.findByName(userName);
-        if (userToShow == null) {
-            return "error";
-        }
         model.addAttribute("user", userToShow);
         return "user/profile";
     }
