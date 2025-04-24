@@ -20,6 +20,14 @@
     <input type="password" id="password" th:field="*{password}" /><br/>
 
 
+    <label for="rolesSelect">Roles:</label>
+    <select th:field="*{roles}" multiple="multiple" id="rolesSelect">
+
+        <option th:each="role : ${rolesList}" th:value="${role.name}" th:text="${role.name}"
+                th:selected="${userDto.roles.contains(role.name)}"></option>
+    </select><br/>
+
+
     <button type="submit">Create User</button>
 </form>
 

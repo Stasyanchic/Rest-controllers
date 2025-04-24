@@ -75,18 +75,22 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Transactional
     @Override
     public void createUser(UserDto userDto) {
-
         if (userDto.getPassword() == null || userDto.getPassword().isEmpty()) {
             throw new IllegalArgumentException("Password cannot be empty");
         }
-
         if (userRepository.findByEmail(userDto.getEmail()).isPresent()) {
             throw new IllegalArgumentException("Email already exists");
         }
-
-
         User user = convertToEntity(userDto);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        Set<Role> roles = new HashSet<>();
+        if (userDto.getRoles() != null) {
+            roles = userDto.getRoles().stream()
+                    .map(roleName -> roleRepository.findOptionalByName(roleName)
+                            .orElseThrow(() -> new IllegalArgumentException("Role not found: " + roleName)))
+                    .collect(Collectors.toSet());
+        }
+        user.setRoles(roles);
         userRepository.save(user);
         userDto.setId(user.getId());
     }
@@ -99,6 +103,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setName(userDto.getName());
         user.setEmail(userDto.getEmail());
+        if (userDto.getPassword() != null && !userDto.getPassword().isEmpty()) {
+
+            String encodedPassword = passwordEncoder.encode(userDto.getPassword());
+            user.setPassword(encodedPassword);
+        }
         user.getRoles().clear();
         Set<Role> roles = new HashSet<>();
         if (userDto.getRoles() != null) {

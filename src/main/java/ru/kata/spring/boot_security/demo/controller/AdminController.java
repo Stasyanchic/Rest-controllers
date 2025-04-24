@@ -14,6 +14,7 @@ import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.service.UserService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -57,7 +58,11 @@ public class AdminController {
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/new")
     public String showCreationOfUserForm(Model model) {
-        model.addAttribute("userDto", new UserDto());
+        UserDto userDto = new UserDto();
+        List<Role> roles = userService.getAllRoles();
+        userDto.setRoles(new ArrayList<>());
+        model.addAttribute("rolesList", roles);
+        model.addAttribute("userDto", userDto);
         return "users/new";
     }
 
@@ -74,7 +79,6 @@ public class AdminController {
         userDto.setId(id);
         userService.updateUser(userDto);
         return "redirect:/admin/list";
-
     }
 
     @PreAuthorize("hasRole('ADMIN')")
