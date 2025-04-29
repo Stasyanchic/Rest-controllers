@@ -27,6 +27,7 @@ public class Role implements GrantedAuthority {
         return "ROLE_" + name;
     }
 
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;

@@ -2,6 +2,8 @@ package ru.kata.spring.boot_security.demo.service;
 
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -15,11 +17,10 @@ import ru.kata.spring.boot_security.demo.repository.RoleRepository;
 import ru.kata.spring.boot_security.demo.repository.UserRepository;
 
 import javax.persistence.EntityNotFoundException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.fasterxml.jackson.databind.type.LogicalType.Collection;
 
 @Service
 public class UserServiceImpl implements UserService, UserDetailsService {
@@ -140,12 +141,26 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Transactional(readOnly = true)
     @Override
-    public UserDetails loadUserByUsername(String name) throws UsernameNotFoundException {
-        User user = userRepository.findByName(name);
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = userRepository.getByEmail(email);
         if (user == null) {
             throw new UsernameNotFoundException("User not found");
         }
         Hibernate.initialize(user.getRoles());
+
         return user;
+
+        /* Collection<GrantedAuthority> authorities = user.getRoles().stream()
+                .map(role -> new SimpleGrantedAuthority(role.getName()))
+                .collect(Collectors.toList());
+
+        return new org.springframework.security.core.userdetails.User(
+                user.getUsername(),
+                user.getPassword(),
+                authorities
+        );     */
     }
 }
+
+
+

@@ -3,7 +3,9 @@ package ru.kata.spring.boot_security.demo.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.kata.spring.boot_security.demo.model.Role;
 
+import javax.persistence.Column;
 import java.util.List;
 
 @Data
@@ -15,5 +17,6 @@ public class UserDto {
     private String email;
     private String password;
     private List<String> roles;
+
 
 }

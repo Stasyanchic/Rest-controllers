@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login page</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .form-signing {
+            width: 100%;
+            max-width: 330px;
+            padding: 15px;
+            margin: auto;
+        }
+
+        .form-signing .form-control {
+            position: relative;
+            box-sizing: border-box;
+            height: auto;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        .form-signing .form-control:focus {
+            z-index: 2;
+        }
+
+        .form-signing input[type="email"] {
+            margin-bottom: -1px;
+            border-bottom-right-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+
+        .form-signing input[type="password"] {
+            margin-bottom: 10px;
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+        }
+    </style>
+</head>
+<body class="text-center">
+
+<form class="form-signing" th:action="@{/login}" method="post">
+    <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
+    <label for="email" class="sr-only">Email address</label>
+    <input type="email" id="email" name="username" class="form-control" placeholder="Email address" required autofocus>
+    <label for="password" class="sr-only">Password</label>
+    <input type="password" id="password" name="password" class="form-control" placeholder="Password" required>
+    <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+
+    <!--  блок для отображения ошибок Spring Security -->
+    <div th:if="${param.error}" class="alert alert-danger">
+        Invalid username and password.
+    </div>
+    <div th:if="${param.logout}" class="alert alert-success">
+        You have been logged out.
+    </div>
+
+</form>
+
+<!-- Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -14,6 +14,7 @@ import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.service.UserService;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,11 +46,16 @@ public class AdminController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/show/{id}")
-    public String showUserDetails(@PathVariable("id") long id, Model model) {
-        UserDto userDto = userService.getUserDtoById(id);
+    @GetMapping("/show")
+    public String showUserDetails( Model model, Principal principal) {
+        String username = principal.getName();
+        User user = userService.findByName(username);
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with username " + username + " not found");
+        }
+        UserDto userDto = userService.getUserDtoById(user.getId());
         if (userDto == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with id " + id + " not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with id " + user.getId() + " not found");
         }
         model.addAttribute("userDto", userDto);
         return "users/show";
