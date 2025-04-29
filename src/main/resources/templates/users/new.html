@@ -15,8 +15,8 @@
                 <div class="card-body">
                     <form th:action="@{/admin/new}" th:object="${userDto}" method="post">
                         <div class="form-group">
-                            <label for="name">First Name</label>
-                            <input type="text" class="form-control" id="name" th:field="*{name}" placeholder="Enter first name">
+                            <label for="name">Name</label>
+                            <input type="text" class="form-control" id="name" th:field="*{name}" placeholder="Enter name">
                         </div>
                         <div class="form-group">
                             <label for="email">Email</label>

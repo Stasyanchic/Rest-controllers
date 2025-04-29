@@ -14,17 +14,19 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="editUserModalLabel">Edit User</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+
+
+
+
+
             </div>
             <div class="modal-body">
                 <form th:action="@{/admin/edit/{id}(id=${userDto.id})}" th:object="${userDto}" method="post" id="editUserForm">
                     <input type="hidden" th:field="*{id}" />
 
                     <div class="form-group">
-                        <label for="firstName">First Name</label>
-                        <input type="text" class="form-control" id="firstName" th:field="*{name}" placeholder="Enter first name">
+                        <label for="firstName">Name</label>
+                        <input type="text" class="form-control" id="firstName" th:field="*{name}" placeholder="Enter name">
                     </div>
                     <div class="form-group">
                         <label for="email">Email</label>
@@ -55,7 +57,7 @@
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.js"></script>
 <script>
 
     $(document).ready(function() {
@@ -63,6 +65,5 @@
         $('#editUserModal').modal('show')
     });
 </script>
-
 </body>
 </html>
