@@ -1,23 +1,21 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity3"
-      lang="en">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
 <head>
     <meta charset="UTF-8">
-    <title>User page</title>
+    <title>Spring Security Example</title>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-<div class="container mt-5">
-    <h1 class="mb-4">User Profile!</h1>
+<div class="container">
+    <h1 class="mt-3">See Users List</h1>
 
-    <p><b>ID:</b> <span th:text="${user.id}"></span></p>
-    <p><b>Name:</b> <span th:text="${user.name}"></span></p>
-    <p><b>Email:</b> <span th:text="${user.email}"></span></p>
+    <div class="mt-3" sec:authorize="hasRole('ADMIN')">
+        <a th:href="@{/admin/users}" class="btn btn-primary">Show User List</a>
+    </div>
 
     <form th:action="@{/logout}" method="post" class="mt-3">
-        <input type="submit" value="Logout" class="btn btn-danger"/>
+        <input type="submit" value="Logout" class="btn btn-secondary"/>
     </form>
 </div>
 

@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin panel</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+<body>
+
+<div class="alert alert-success" id="successAlert" role="alert">
+    <p id="alertMsg"></p>
+    <span class="timer-line"></span>
+</div>
+
+<!-- Edit User Modal -->
+<div class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-labelledby="editUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editUserModalLabel">Edit user</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <form id="editUserForm">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>ID</label>
+                        <input class="form-control" type="text" id="editUserId" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input class="form-control" type="text" id="editName">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input class="form-control" type="email" id="editEmail">
+                    </div>
+                    <div class="form-group">
+                        <label>Password (leave blank to keep current)</label>
+                        <input class="form-control" type="password" id="editPassword">
+                    </div>
+                    <div class="form-group">
+                        <label>Roles</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="roleToEdit" id="editUserCheckRole" value="USER">
+                            <label class="form-check-label">USER</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="roleToEdit" id="editAdminCheckRole" value="ADMIN">
+                            <label class="form-check-label">ADMIN</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Delete User Modal -->
+<div class="modal fade" id="deleteUserModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete user</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this user?</p>
+                <div class="user-info">
+                    <p><strong>ID:</strong> <span id="deleteUserId"></span></p>
+                    <p><strong>Name:</strong> <span id="deleteName"></span></p>
+                    <p><strong>Email:</strong> <span id="deleteEmail"></span></p>
+                    <p><strong>Roles:</strong> <span id="deleteRoles"></span></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container-fluid bg-dark px-4 py-2 d-flex justify-content-between align-items-center" id="header">
+    <p class="text-white m-0">
+        <span id="userDataEmail">email@mail.ru</span>
+        with roles:
+        <span id="userDataRoles">ADMIN</span>
+    </p>
+    <form th:action="@{/logout}" method="post">
+        <button type="submit" class="text-secondary">Logout</button>
+    </form>
+</div>
+
+<div class="container-fluid m-0 p-0 d-inline-flex justify-content-between align-items-center custom" id="sections">
+    <div class="col-2 bg-white m-0 p-0 customDiv">
+        <div class="container-fluid m-0 p-0 pt-2">
+            <p class="bg-primary text-white pl-3 py-2 m-0 btn-custom" style="cursor: pointer;">Admin</p>
+            <p class="bg-white text-primary pl-3 py-2 m-0 btn-custom" style="cursor: pointer;">User</p>
+        </div>
+    </div>
+
+    <div class="col-10 px-4 py-3 customDiv" id="adminPanel">
+        <h2>Admin panel</h2>
+
+        <ul class="nav nav-tabs">
+            <li class="nav-item" id="showUsersList" style="cursor: pointer;">
+                <p class="nav-link text-primary m-0 active" id="showUsersListBtn">Users table</p>
+            </li>
+            <li class="nav-item" id="showAddUserForm" style="cursor: pointer;">
+                <p class="nav-link m-0" id="showAddUserFormBtn">New User</p>
+            </li>
+        </ul>
+
+        <!-- Users Table Section -->
+        <div class="border" id="usersList">
+            <p class="alert-secondary py-2 pl-3 border-bottom">All users</p>
+            <div class="container-fluid px-4 pb-4" id="usersTable">
+                <table class="table">
+                    <thead class="users-table-head">
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Edit</th>
+                        <th>Delete</th>
+                    </tr>
+                    </thead>
+                    <tbody id="users-table-body">
+                    <!-- Users will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Add User Form Section -->
+        <div class="border" id="addUserForm" style="display: none;">
+            <p class="alert-secondary py-2 pl-3 m-0 border-bottom">Add user</p>
+            <form id="addNewUser" class="bg-white p-3">
+                <div class="form-group">
+                    <label for="nameToAdd">Name</label>
+                    <input class="form-control" type="text" id="nameToAdd" placeholder="First name" required>
+                </div>
+                <div class="form-group">
+                    <label for="emailToAdd">Email</label>
+                    <input class="form-control" type="email" id="emailToAdd" placeholder="Email" required>
+                </div>
+                <div class="form-group">
+                    <label for="passwordToAdd">Password</label>
+                    <input class="form-control" type="password" id="passwordToAdd" placeholder="Password" required>
+                </div>
+                <div class="form-group">
+                    <label>Roles</label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="roleToAdd" id="addUserCheckRole" value="USER">
+                        <label class="form-check-label" for="addUserCheckRole">USER</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="roleToAdd" id="addAdminCheckRole" value="ADMIN">
+                        <label class="form-check-label" for="addAdminCheckRole">ADMIN</label>
+                    </div>
+                </div>
+                <button class="btn btn-success" type="submit">Add new user</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-10 px-4 py-3 customDiv" id="userInfo" style="display: none;">
+        <h2>User information-page</h2>
+        <div class="border">
+            <p class="alert-secondary py-2 pl-3 border-bottom">About user</p>
+            <div class="container-fluid px-4 pb-4">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                    </tr>
+                    </thead>
+                    <tbody id="authorizedUserData">
+                    <!-- User info will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/3.6.20/fetch.js" integrity="sha512-HcIFTco6s7ipvn1hPSsztqwgA0u1BlgMmFCUS1qCEyT76pSP1F5//mawE+95ZRQ3U1LxtyIMyT6+tyJg36UOew==" type="module" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<script src="/admin.js"></script>
+<script src="/modal.js"></script>
+<script src="/selections.js"></script>
+
+<style>
+    body {
+        background: rgb(244, 244, 244);
+        overflow: hidden;
+    }
+
+    button {
+        background: none;
+        border: none;
+    }
+
+    .users-table-head {
+        position: sticky;
+        top: 0;
+        background: white;
+        z-index: 10;
+    }
+
+    #addUserForm {
+        max-height: 70vh;
+        overflow-y: auto;
+        padding: 15px;
+    }
+
+
+    .custom {
+        height: 95vh;
+    }
+
+    .customDiv {
+        height: 100%;
+    }
+
+    #usersTable tr:nth-child(even) {
+        background: #fff;
+    }
+
+    #usersTable {
+        max-height: 60vh;
+        overflow-y: auto;
+        display: block;
+        width: 100%;
+    }
+    #usersTable table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    #usersTable tr:nth-child(even) {
+        background: #f8f9fa;
+    }
+    #usersTable td, #usersTable th {
+        padding: 8px 12px;
+        text-align: left;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    a {
+        width: 100%;
+        height: 100%;
+        color: #fff;
+        text-decoration: none;
+    }
+
+    a:hover{
+        color: #fff;
+        text-decoration: none;
+    }
+
+    #successAlert {
+        margin: 0;
+        padding: 15px 0 0 0;
+        width: 35%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+        position: fixed;
+        bottom: -80px;
+        left: calc(50% - 17.5%);
+        z-index: 100;
+        transition: bottom 0.2s ease-in-out;
+    }
+
+    #successAlert p {
+        width: 100%;
+        text-align: center;
+        margin: 0;
+        padding: 0;
+    }
+
+    .timer-line {
+        height: 1px;
+        width: 100%;
+        background-color: #4CAF50;
+        margin-top: 15px;
+        transition: width 5s linear;
+    }
+
+    #successAlert.active {
+        bottom: 20px;
+    }
+
+    #successAlert.hidden {
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.3s ease-in-out;
+    }
+
+    #successAlert.hidden .timer-line {
+        width: 100%;
+    }
+
+    .modal-body {
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+</style>
+</body>
+</html>
