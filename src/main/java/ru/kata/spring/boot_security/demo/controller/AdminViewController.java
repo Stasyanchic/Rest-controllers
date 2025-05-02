@@ -31,7 +31,6 @@ public class AdminViewController {
         return "dashboard";
     }
 
-    // Страница с таблицей пользователей (users.html)
     @GetMapping("/users")
     public String showUsersPage(@AuthenticationPrincipal User authenticatedUser, Model model) {
         UserResponseDto currentUser = userService.getUserDtoById(authenticatedUser.getId());

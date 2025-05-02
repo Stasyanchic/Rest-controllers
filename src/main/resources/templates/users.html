@@ -207,119 +207,218 @@
 
 <style>
     body {
-        background: rgb(244, 244, 244);
-        overflow: hidden;
+        font-family: Arial, sans-serif;
+        background-color: #f8f9fa;
+        margin: 0;
+        padding: 0;
     }
 
-    button {
+    #header {
+        background-color: #343a40;
+        padding: 10px 20px;
+    }
+
+    #header p {
+        margin: 0;
+        color: white;
+    }
+
+    #header button {
         background: none;
         border: none;
+        color: #6c757d;
+        cursor: pointer;
     }
 
-    .users-table-head {
-        position: sticky;
-        top: 0;
-        background: white;
-        z-index: 10;
+    #header button:hover {
+        color: white;
     }
 
-    #addUserForm {
-        max-height: 70vh;
-        overflow-y: auto;
-        padding: 15px;
-    }
-
-
-    .custom {
-        height: 95vh;
+    #sections {
+        display: flex;
+        min-height: calc(100vh - 50px);
     }
 
     .customDiv {
         height: 100%;
     }
 
-    #usersTable tr:nth-child(even) {
-        background: #fff;
+    .btn-custom {
+        transition: all 0.3s;
     }
 
-    #usersTable {
-        max-height: 60vh;
-        overflow-y: auto;
-        display: block;
-        width: 100%;
+    .btn-custom:hover {
+        background-color: #007bff !important;
+        color: white !important;
     }
-    #usersTable table {
-        width: 100%;
-        border-collapse: collapse;
+
+    #adminPanel, #userInfo {
+        background-color: white;
+        padding: 20px;
     }
-    #usersTable tr:nth-child(even) {
-        background: #f8f9fa;
-    }
-    #usersTable td, #usersTable th {
-        padding: 8px 12px;
-        text-align: left;
+
+    .nav-tabs {
         border-bottom: 1px solid #dee2e6;
     }
 
-    a {
-        width: 100%;
-        height: 100%;
-        color: #fff;
-        text-decoration: none;
+    .nav-tabs .nav-link {
+        border: none;
+        padding: 10px 15px;
+        color: #495057;
     }
 
-    a:hover{
-        color: #fff;
-        text-decoration: none;
+    .nav-tabs .nav-link.active {
+        color: #007bff;
+        background-color: transparent;
+        border-bottom: 2px solid #007bff;
     }
 
-    #successAlert {
+    .nav-tabs .nav-link:hover {
+        border-color: transparent;
+    }
+
+    .border {
+        border: 1px solid #dee2e6 !important;
+        border-radius: 4px;
+    }
+
+    .alert-secondary {
+        background-color: #e9ecef;
+        color: #495057;
         margin: 0;
-        padding: 15px 0 0 0;
-        width: 35%;
+    }
+
+    .table {
+        width: 100%;
+        margin-bottom: 1rem;
+        color: #212529;
+    }
+
+    .table th, .table td {
+        padding: 12px;
+        vertical-align: middle;
+        border-top: 1px solid #dee2e6;
+    }
+
+    .table thead th {
+        vertical-align: bottom;
+        border-bottom: 2px solid #dee2e6;
+        background-color: #f8f9fa;
+    }
+
+    .btn {
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        border-color: #6c757d;
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+        border-color: #dc3545;
+    }
+
+    .form-control {
+        display: block;
+        width: 100%;
+        padding: 8px 12px;
+        font-size: 14px;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-check {
+        position: relative;
+        display: block;
+        padding-left: 1.25rem;
+    }
+
+    .form-check-input {
+        position: absolute;
+        margin-top: 0.3rem;
+        margin-left: -1.25rem;
+    }
+
+    .form-check-label {
+        margin-bottom: 0;
+    }
+
+    .modal-header {
         display: flex;
-        flex-direction: column;
-        justify-content: center;
         align-items: flex-start;
-        position: fixed;
-        bottom: -80px;
-        left: calc(50% - 17.5%);
-        z-index: 100;
-        transition: bottom 0.2s ease-in-out;
+        justify-content: space-between;
+        padding: 1rem;
+        border-bottom: 1px solid #e9ecef;
     }
 
-    #successAlert p {
-        width: 100%;
-        text-align: center;
+    .modal-title {
         margin: 0;
-        padding: 0;
-    }
-
-    .timer-line {
-        height: 1px;
-        width: 100%;
-        background-color: #4CAF50;
-        margin-top: 15px;
-        transition: width 5s linear;
-    }
-
-    #successAlert.active {
-        bottom: 20px;
-    }
-
-    #successAlert.hidden {
-        opacity: 0;
-        pointer-events: none;
-        transition: all 0.3s ease-in-out;
-    }
-
-    #successAlert.hidden .timer-line {
-        width: 100%;
+        line-height: 1.5;
     }
 
     .modal-body {
-        max-height: 70vh;
-        overflow-y: auto;
+        position: relative;
+        flex: 1 1 auto;
+        padding: 1rem;
+    }
+
+    .modal-footer {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding: 1rem;
+        border-top: 1px solid #e9ecef;
+    }
+
+    .user-info p {
+        margin-bottom: 0.5rem;
+    }
+
+    #successAlert {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        display: none;
+    }
+
+    .timer-line {
+        display: block;
+        height: 3px;
+        background-color: rgba(0, 0, 0, 0.1);
+        width: 100%;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        animation: timer 3s linear forwards;
+    }
+
+    @keyframes timer {
+        from { width: 100%; }
+        to { width: 0%; }
     }
 </style>
 </body>
