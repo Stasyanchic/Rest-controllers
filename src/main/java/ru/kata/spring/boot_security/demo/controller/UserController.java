@@ -7,10 +7,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.service.UserService;
 
-@Controller
+@RestController
 @RequestMapping("/user")
 public class UserController {
 
@@ -22,11 +24,11 @@ public class UserController {
     }
 
     @GetMapping
-    public String getUserHomePage(Model model) {
+    public ModelAndView getUserHomePage(Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userName = authentication.getName();
         User userToShow = userService.findByName(userName);
         model.addAttribute("user", userToShow);
-        return "profile";
+        return new ModelAndView("profile");
     }
 }

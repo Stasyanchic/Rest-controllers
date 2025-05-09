@@ -3,9 +3,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 import ru.kata.spring.boot_security.demo.dto.UserRequestDto;
 import ru.kata.spring.boot_security.demo.dto.UserResponseDto;
 import ru.kata.spring.boot_security.demo.model.Role;
@@ -30,7 +34,6 @@ public class AdminController {
         this.userService = userService;
         this.request = request;
     }
-
 
     @GetMapping("/sendCSRF")
     public ResponseEntity<String> sendCSRF() {
@@ -94,6 +97,32 @@ public class AdminController {
     @DeleteMapping("/users/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUser(@PathVariable Long id) {
-            userService.deleteUser(id);
+        userService.deleteUser(id);
     }
+
+    @GetMapping
+    public ModelAndView getAdminPanel(@AuthenticationPrincipal User authenticatedUser, Model model) {
+        UserResponseDto currentUser = userService.getUserDtoById(authenticatedUser.getId());
+        model.addAttribute("currentUser", currentUser);
+        model.addAttribute("allRoles", userService.getAllRoles());
+        return new ModelAndView("dashboard");
+    }
+
+    @GetMapping("/table")
+    public ModelAndView showUsersPage(@AuthenticationPrincipal User authenticatedUser, Model model) {
+        UserResponseDto currentUser = userService.getUserDtoById(authenticatedUser.getId());
+        model.addAttribute("currentUser", currentUser);
+        return new ModelAndView("users");
+    }
+
+
+    @GetMapping("/home")
+    public ModelAndView getUserHomePage(Model model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userName = authentication.getName();
+        User userToShow = userService.findByName(userName);
+        model.addAttribute("user", userToShow);
+        return new ModelAndView("profile");
+    }
+
 }
